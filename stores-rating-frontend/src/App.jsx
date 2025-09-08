@@ -17,17 +17,19 @@ function App() {
       {/* Admin */}
       <Route element={<ProtectedRoute role="ADMIN" />}>
         <Route path="/admin/dashboard" element={<DashboardAdmin />} />
+        <Route path="/admin/update-password" element={<UpdatePassword />} />
       </Route>
 
       {/* User */}
       <Route element={<ProtectedRoute role="USER" />}>
         <Route path="/user/dashboard" element={<DashboardUser />} />
-        <Route path="/user/password" element={<UpdatePassword />} />
+        <Route path="/user/update-password" element={<UpdatePassword />} />
       </Route>
 
       {/* Owner */}
       <Route element={<ProtectedRoute role="OWNER" />}>
         <Route path="/owner/dashboard" element={<DashboardOwner />} />
+        <Route path="/owner/update-password" element={<UpdatePassword />} />
       </Route>
 
       {/* Catch all */}

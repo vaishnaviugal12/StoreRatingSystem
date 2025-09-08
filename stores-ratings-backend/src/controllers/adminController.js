@@ -62,21 +62,35 @@ export const listUsers = async (req, res) => {
 };
 
 // --- Add Store ---
+// --- Add Store ---
 export const addStore = async (req, res) => {
   try {
     const { name, address, ownerId } = req.body;
-    if (!name || !address) return res.status(400).json({ error: "Name and address required" });
+    if (!name || !address)
+      return res.status(400).json({ error: "Name and address required" });
 
     const store = await prisma.store.create({
       data: { name, address, ownerId: ownerId || null },
+      include: {
+        owner: { select: { id: true, name: true, email: true } },
+        ratings: true,
+      },
     });
 
-    res.status(201).json({ message: "Store added successfully", store });
+    // Calculate avg rating for new store
+    const avgRating =
+      store.ratings.reduce((acc, r) => acc + r.score, 0) /
+      (store.ratings.length || 1);
+
+    res
+      .status(201)
+      .json({ message: "Store added successfully", store: { ...store, avgRating } });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Server error" });
   }
 };
+
 
 // --- List Stores (with optional filters) ---
 export const listStores = async (req, res) => {

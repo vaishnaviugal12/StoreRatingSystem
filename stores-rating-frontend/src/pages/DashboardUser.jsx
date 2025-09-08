@@ -50,14 +50,12 @@ export default function DashboardUser() {
   const handleRating = async (storeId, score) => {
     try {
       await api.post("/user/ratings", { storeId, score });
-      // Update local state immediately
       setStores((prev) =>
         prev.map((s) =>
           s.id === storeId
             ? {
                 ...s,
                 userRating: score,
-                // optionally update avgRating locally
                 avgRating: s.ratings
                   ? (s.ratings.reduce((acc, r) => acc + r.score, 0) + score) /
                     (s.ratings.length + 1)
@@ -72,53 +70,73 @@ export default function DashboardUser() {
   };
 
   return (
-    <div>
+    <div className="min-h-screen bg-gray-50">
       <Navbar role="USER" />
-      <div className="p-8">
-        <h2 className="text-2xl font-bold mb-6">Stores List</h2>
 
-        {/* Search and Filter */}
-        <div className="flex gap-4 mb-6">
-          <input
-            type="text"
-            placeholder="Search by name or address"
-            className="border px-4 py-2 rounded w-1/2"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+      {/* Header */}
+      <div className="bg-gradient-to-r from-green-500 to-green-600 text-white py-10 px-8 shadow-md">
+        <h2 className="text-3xl font-bold">Explore Stores</h2>
+        <p className="text-sm opacity-90">Search, filter, and rate your favorite stores</p>
+      </div>
 
-          <select
-            className="border px-4 py-2 rounded"
-            value={minRating}
-            onChange={(e) => setMinRating(Number(e.target.value))}
+      {/* Search and Filter */}
+      <div className="p-6 flex flex-col md:flex-row gap-4 justify-center items-center bg-white shadow rounded -mt-6 mx-8">
+        <input
+          type="text"
+          placeholder="🔍 Search by name or address"
+          className="border px-4 py-2 rounded w-full md:w-1/2 focus:ring-2 focus:ring-green-500 outline-none"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+
+        <select
+          className="border px-4 py-2 rounded focus:ring-2 focus:ring-green-500 outline-none"
+          value={minRating}
+          onChange={(e) => setMinRating(Number(e.target.value))}
+        >
+          <option value={0}>All Ratings</option>
+          <option value={1}>⭐ 1 & above</option>
+          <option value={2}>⭐ 2 & above</option>
+          <option value={3}>⭐ 3 & above</option>
+          <option value={4}>⭐ 4 & above</option>
+          <option value={5}>⭐ 5 only</option>
+        </select>
+      </div>
+
+      {/* Stores Grid */}
+      <div className="p-8 grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        {filteredStores.map((store) => (
+          <div
+            key={store.id}
+            className="bg-white rounded-2xl shadow hover:shadow-lg transition transform hover:-translate-y-1 p-6 flex flex-col justify-between"
           >
-            <option value={0}>All Ratings</option>
-            <option value={1}>1 star & above</option>
-            <option value={2}>2 stars & above</option>
-            <option value={3}>3 stars & above</option>
-            <option value={4}>4 stars & above</option>
-            <option value={5}>5 stars</option>
-          </select>
-        </div>
+            <div>
+              <h3 className="font-semibold text-lg text-gray-800">{store.name}</h3>
+              <p className="text-gray-600 text-sm">{store.address}</p>
 
-        {/* Stores Grid */}
-        <div className="grid grid-cols-3 gap-6">
-          {filteredStores.map((store) => (
-            <div key={store.id} className="bg-white shadow p-4 rounded">
-              <h3 className="font-semibold">{store.name}</h3>
-              <p>{store.address}</p>
-              <p>Average Rating: {store.avgRating.toFixed(1)}</p>
-              <p>Your Rating:</p>
+              <div className="mt-3">
+                <p className="text-gray-700 font-medium">
+                  ⭐ Average Rating:{" "}
+                  <span className="text-green-600">{store.avgRating.toFixed(1)}</span>
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <p className="text-sm text-gray-500 mb-1">Your Rating:</p>
               <StarRating
                 rating={store.userRating || 0}
                 onRate={(score) => handleRating(store.id, score)}
               />
             </div>
-          ))}
-          {filteredStores.length === 0 && (
-            <p className="text-center col-span-3 text-gray-500">No stores found.</p>
-          )}
-        </div>
+          </div>
+        ))}
+
+        {filteredStores.length === 0 && (
+          <p className="text-center col-span-3 text-gray-500 italic">
+            No stores found matching your search.
+          </p>
+        )}
       </div>
     </div>
   );

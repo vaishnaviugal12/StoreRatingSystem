@@ -11,13 +11,15 @@ export default function Navbar({ role }) {
     navigate("/login");
   };
 
+  // Compute update-password route dynamically
+  const passwordRoute = `/${role.toLowerCase()}/update-password`;
+
   return (
     <nav className="bg-blue-600 text-white p-4 flex justify-between items-center">
       <h1 className="font-bold text-xl">Stores Rating App - {role}</h1>
       <div className="flex gap-4">
-        {/* Only show Update Password link for logged-in user/owner/admin */}
         <button
-          onClick={() => navigate(`/user/password`)}
+          onClick={() => navigate(passwordRoute)}
           className="bg-yellow-500 px-3 py-1 rounded hover:bg-yellow-600"
         >
           Update Password
@@ -33,4 +35,3 @@ export default function Navbar({ role }) {
     </nav>
   );
 }
-

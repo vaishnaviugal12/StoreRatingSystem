@@ -1,5 +1,6 @@
 import { useState } from "react";
 import api, { setAuthToken } from "../api/axios";
+import toast from "react-hot-toast";
 
 export default function AddUserForm({ onUserAdded }) {
   const [formData, setFormData] = useState({
@@ -29,10 +30,11 @@ export default function AddUserForm({ onUserAdded }) {
       const res = await api.post("/admin/users", formData);
       setFormData({ name: "", email: "", address: "", password: "", role: "USER" });
       onUserAdded(res.data.user);
-      alert("User added successfully!");
+      toast.success("✅ User added successfully!");
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.error || "Server error");
+      toast.error("❌ Failed to add user");
     } finally {
       setLoading(false);
     }
@@ -41,45 +43,30 @@ export default function AddUserForm({ onUserAdded }) {
   return (
     <form className="bg-white p-6 shadow rounded space-y-4" onSubmit={handleSubmit}>
       <h3 className="text-lg font-bold">Add New User</h3>
-
       {error && <p className="text-red-500">{error}</p>}
 
-      <input
-        type="text"
-        name="name"
-        placeholder="Name"
-        className="w-full border px-3 py-2 rounded"
-        value={formData.name}
-        onChange={handleChange}
-      />
+      {/* Floating Label Inputs */}
+      {["name", "email", "address", "password"].map((field, i) => (
+        <div className="relative" key={i}>
+          <input
+            type={field === "password" ? "password" : "text"}
+            name={field}
+            id={field}
+            value={formData[field]}
+            onChange={handleChange}
+            placeholder=" "
+            className="peer w-full border rounded px-3 pt-5 pb-2 focus:ring-2 focus:ring-blue-500 outline-none"
+          />
+          <label
+            htmlFor={field}
+            className="absolute left-3 top-2 text-gray-500 text-sm transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-sm peer-focus:text-blue-500"
+          >
+            {field.charAt(0).toUpperCase() + field.slice(1)}
+          </label>
+        </div>
+      ))}
 
-      <input
-        type="email"
-        name="email"
-        placeholder="Email"
-        className="w-full border px-3 py-2 rounded"
-        value={formData.email}
-        onChange={handleChange}
-      />
-
-      <input
-        type="text"
-        name="address"
-        placeholder="Address"
-        className="w-full border px-3 py-2 rounded"
-        value={formData.address}
-        onChange={handleChange}
-      />
-
-      <input
-        type="password"
-        name="password"
-        placeholder="Password"
-        className="w-full border px-3 py-2 rounded"
-        value={formData.password}
-        onChange={handleChange}
-      />
-
+      {/* Role Select */}
       <select
         name="role"
         className="w-full border px-3 py-2 rounded"

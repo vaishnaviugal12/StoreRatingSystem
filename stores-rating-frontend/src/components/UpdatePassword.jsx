@@ -1,5 +1,6 @@
 // src/components/UpdatePassword.jsx
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 import api, { setAuthToken } from "../api/axios.js";
 
 export default function UpdatePassword() {
@@ -7,13 +8,18 @@ export default function UpdatePassword() {
   const [newPassword, setNewPassword] = useState("");
   const [message, setMessage] = useState("");
 
+  const location = useLocation();
+
+  // Determine role from current URL path
+  const role = location.pathname.includes("/owner") ? "owner" : "user";
+
   const handleUpdate = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
     setAuthToken(token);
 
     try {
-      const res = await api.put("/user/password", { oldPassword, newPassword });
+      const res = await api.put(`/${role}/password`, { oldPassword, newPassword });
       setMessage(res.data.message);
       setOldPassword("");
       setNewPassword("");
@@ -23,7 +29,10 @@ export default function UpdatePassword() {
   };
 
   return (
-    <form className="max-w-md mx-auto mt-8 p-6 bg-white shadow rounded" onSubmit={handleUpdate}>
+    <form
+      className="max-w-md mx-auto mt-8 p-6 bg-white shadow rounded"
+      onSubmit={handleUpdate}
+    >
       <h2 className="text-xl font-bold mb-4">Update Password</h2>
       {message && <p className="mb-4 text-red-500">{message}</p>}
       <input
